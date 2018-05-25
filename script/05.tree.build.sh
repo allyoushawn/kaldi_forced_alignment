@@ -37,12 +37,13 @@ fi
 echo "    computing questions for tree clustering"
 if [ ! -f $dir/roots.txt ]; then
   echo "        output -> $dir/questions.qst $dir/roots.txt"
-  utility/sym2int.pl train/phones.txt train/phonecluster.txt > $dir/phonesets.txt
+  #utils/sym2int.pl train/phones.txt train/phonecluster.txt > $dir/phonesets.txt
+  cp lang/phones/sets.int $dir/phonesets.txt
   cluster-phones --pdf-class-list=0 $dir/tree.acc $dir/phonesets.txt $dir/questions.txt \
     2> $dir/log/cluster.log || exit 1
   compile-questions train/topo $dir/questions.txt $dir/questions.qst \
     2> $dir/log/questions.log || exit 1
-  utility/sym2int.pl --ignore-oov train/phones.txt train/roots.txt > $dir/roots.txt
+  utils/sym2int.pl --ignore-oov train/phones.txt train/roots.txt > $dir/roots.txt
 else
   echo "        $dir/roots.txt exists , skipping ..."
 fi
@@ -68,6 +69,6 @@ rm -f $dir/phonesets.txt
 sec=$SECONDS
 
 echo ""
-echo "Execution time for whole script = `utility/timer.pl $sec`"
+echo "Execution time for whole script = `utils/timer.pl $sec`"
 echo ""
 

@@ -64,11 +64,11 @@ for x in `seq 1 10`; do
 		$model $HCLG ark:- ark:$dir/dev.${acwt}.lat ark,t:$dir/dev.${acwt}.tra ark,t:$dir/dev.${acwt}.ali  2>$log || exit 1;
 
 	cat $dir/dev.${acwt}.tra \
-	  | utility/int2sym.pl --ignore-first-field decode/words.txt \
-	  | python utility/word2char.py \
+	  | utils/int2sym.pl --ignore-first-field decode/words.txt \
+	  | python utils/word2char.py \
 	  >$dir/dev.${acwt}.rec
 	cat $dir/dev.${acwt}.rec \
-	  | python utility/compute-acc.py decode/dev.text \
+	  | python utils/compute-acc.py decode/dev.text \
 	  >$dir/dev.${acwt}.acc
 
 	acc=`grep "overall accuracy" $dir/dev.${acwt}.acc | awk '{ print $4 }'`
@@ -82,11 +82,11 @@ for x in `seq 1 10`; do
 	echo "    result -> $dir/dev.$acwt.rec"
   	echo "    accuracy -> [ $acc ]%"
         timer=$[$SECONDS-$timer];
-        echo "    excution  time for the evaluation on $x = `utility/timer.pl $timer`"
+        echo "    excution  time for the evaluation on $x = `utils/timer.pl $timer`"
 
 done
 timer=$[$SECONDS-$timer]
-echo "Execution time for finding the optimal weight = `utility/timer.pl $timer`"
+echo "Execution time for finding the optimal weight = `utils/timer.pl $timer`"
 echo "Optimal acoustic weight = $opt_acwt"
 
 echo ""
@@ -101,11 +101,11 @@ echo "    log->$log"
                 $model $HCLG ark:- ark:$dir/test.lat ark,t:$dir/test.tra ark,t:$dir/test.ali  2>$log || exit 1;
 
         cat $dir/test.tra \
-          | utility/int2sym.pl --ignore-first-field decode/words.txt \
-          | python utility/word2char.py \
+          | utils/int2sym.pl --ignore-first-field decode/words.txt \
+          | python utils/word2char.py \
           >$dir/test.rec
         cat $dir/test.rec \
-          | python utility/compute-acc.py decode/test.text \
+          | python utils/compute-acc.py decode/test.text \
           >$dir/test.acc
 
         acc=`grep "overall accuracy" $dir/test.acc | awk '{ print $4 }'`
@@ -115,10 +115,10 @@ echo "    log->$log"
 
 timer=$[$SECONDS-$timer]
 echo ""
-echo "Execution time for test set decoding = `utility/timer.pl $timer`"
+echo "Execution time for test set decoding = `utils/timer.pl $timer`"
 
 echo ""
-echo "Execution time for whole script = `utility/timer.pl $SECONDS`"
+echo "Execution time for whole script = `utils/timer.pl $SECONDS`"
 echo ""
 
 exit 0;

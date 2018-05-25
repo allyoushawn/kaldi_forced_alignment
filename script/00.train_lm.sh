@@ -13,14 +13,14 @@ mkdir -p $dir
 #	1. process training text file
 #	2. train a language model named $lm_output
 
-ngram_order=1
+ngram_order=2
 kn_num=1
 
-#cut -d ' ' -f 1 --complement $train_text > $dir/LM_train.txt
-#ngram-count -order $ngram_order -kndiscount1 -text $dir/LM_train.txt \
-#-vocab $lexicon -unk -lm $lm_output
-
-cut -d ' ' -f 1  $lexicon > $dir/LM_train.txt
-utility/ngram-count -order $ngram_order -text $dir/LM_train.txt \
+cut -d ' ' -f 1 --complement $train_text > $dir/LM_train.txt
+utils/ngram-count -order $ngram_order -kndiscount1 -text $dir/LM_train.txt \
 -vocab $lexicon -unk -lm $lm_output
+
+#cut -d ' ' -f 1  $lexicon > $dir/LM_train.txt
+#utils/ngram-count -order $ngram_order -text $dir/LM_train.txt \
+#-vocab $lexicon -unk -lm $lm_output
 

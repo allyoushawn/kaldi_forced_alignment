@@ -58,10 +58,12 @@ ln -sf ../train/phones.txt decode/phones.txt
 
 ln -sf ../$phonemap train/phonemap.txt
 
-utility/silphones.pl train/phones.txt SIL \
-  train/silphones.csl train/nonsilphones.csl
+cp  lang/phones/silence.csl train/silphones.csl
+cp  lang/phones/nonsilence.csl train/nonsilphones.csl
 
-cat $phoneset | utility/remove.silence.pl SIL \
+#  train/silphones.csl train/nonsilphones.csl
+
+cat $phoneset | utils/remove.silence.pl SIL \
   > train/phonecluster.txt
 
 ln -sf ../$roots train/roots.txt
@@ -76,7 +78,6 @@ cat train/lexicon.txt | awk '{print $1}' | sort | uniq \
   > train/words.txt
 
 
-#utility/make_lexicon_fst.pl train/lexicon.txt 0.5 SIL \
 #  | fstcompile --isymbols=train/phones.txt \
 #    --osymbols=train/words.txt --keep_isymbols=false \
 #    --keep_osymbols=false \
@@ -94,8 +95,8 @@ sed -e "s:NONSILENCEPHONES:$nonsilphonelist:" \
 
 # label operation
 
-cat $train_text | utility/sym2int.pl --map-oov "<UNK>" --ignore-first-field train/words.txt > train/train.int
-cat $dev_text | utility/sym2int.pl --map-oov "<UNK>" --ignore-first-field train/words.txt > train/dev.int
+cat $train_text | utils/sym2int.pl --map-oov "<UNK>" --ignore-first-field train/words.txt > train/train.int
+cat $dev_text | utils/sym2int.pl --map-oov "<UNK>" --ignore-first-field train/words.txt > train/dev.int
 
 # decoding material
 
@@ -103,48 +104,45 @@ ln -sf ../$lm decode/lm.arpa.txt
 
 ln -sf ../$lexicon_decode decode/lexicon.txt
 
-cat $dev_text | python utility/word2char.py > decode/dev.text
-cat $test_text | python utility/word2char.py > decode/test.text
+cat $dev_text | python utils/word2char.py > decode/dev.text
+cat $test_text | python utils/word2char.py > decode/test.text
 
 cat decode/dev.text | cut -d ' ' -f 1 > decode/dev.list
 cat decode/test.text | cut -d ' ' -f 1 > decode/test.list
 
 # decoding lexicon for WFST
 
-cat decode/lexicon.txt \
-  | awk '{print $1}' | sort | uniq \
-  | awk 'BEGIN{print "<eps> 0";} {printf("%s %d\n", $1, NR);} END{printf("#0 %d\n", NR+1);} ' \
-  > decode/words.txt
+#cat decode/lexicon.txt \
+#  | awk '{print $1}' | sort | uniq \
+#  | awk 'BEGIN{print "<eps> 0";} {printf("%s %d\n", $1, NR);} END{printf("#0 %d\n", NR+1);} ' \
+#  > decode/words.txt
+cp lang/words.txt decode/words.txt
 
-ndisambig=`utility/add_lex_disambig.pl decode/lexicon.txt decode/lexicon_disambig.txt`
+ndisambig=`utils/add_lex_disambig.pl decode/lexicon.txt decode/lexicon_disambig.txt`
 ndisambig=$[$ndisambig+1];
 
-utility/add_disambig.pl --include-zero train/phones.txt $ndisambig \
-  > decode/phones_disambig.txt
+#  > decode/phones_disambig.txt
+cp lang/phones.txt decode/phones_disambig.txt
 
 phone_disambig_symbol=`grep \#0 decode/phones_disambig.txt | awk '{print $2}'`
 word_disambig_symbol=`grep \#0 decode/words.txt | awk '{print $2}'`
 
-( utility/make_lexicon_fst.pl decode/lexicon_disambig.txt 0.5 SIL '#'$ndisambig \
-    | fstcompile --isymbols=decode/phones_disambig.txt \
-        --osymbols=decode/words.txt --keep_isymbols=false \
-        --keep_osymbols=false \
-    | fstaddselfloops  "echo $phone_disambig_symbol |" \
-        "echo $word_disambig_symbol |" \
-    | fstarcsort --sort_type=olabel ) 1> decode/L.fst 2> /dev/null
+
+cp lang/L_disambig.fst decode/L.fst
 
 grep '#' decode/phones_disambig.txt | awk '{print $2}' > decode/disambig_phones.list
 
 # decoding language model for WFST
 
 cat decode/lm.arpa.txt \
-  | utility/find_arpa_oovs.pl decode/words.txt > decode/oovs.txt
+  | utils/find_arpa_oovs.pl decode/words.txt > decode/oovs.txt
+
 
 ( cat decode/lm.arpa.txt \
     | egrep -v '<s> <s>|</s> <s>|</s> </s>' \
     | arpa2fst - | fstprint \
-    | utility/eps2disambig.pl | utility/s2eps.pl \
-    | utility/remove_oovs.pl decode/oovs.txt \
+    | utils/eps2disambig.pl | utils/s2eps.pl \
+    | utils/remove_oovs.pl decode/oovs.txt \
     | fstcompile --isymbols=decode/words.txt --osymbols=decode/words.txt \
       --keep_isymbols=false --keep_osymbols=false \
     | fstrmepsilon ) 1> decode/G.fst #2> /dev/null
@@ -159,5 +157,5 @@ cat decode/lm.arpa.txt \
 
 sec=$SECONDS
 
-echo "Execution time for whole script = `utility/timer.pl $sec`"
+echo "Execution time for whole script = `utils/timer.pl $sec`"
 echo ""

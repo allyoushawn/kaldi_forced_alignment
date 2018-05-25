@@ -49,6 +49,6 @@ fsttablecompose $dir/Ha.fst $dir/CLG.fst \
 sec=$SECONDS
 
 echo ""
-echo "Execution time for whole script = `utility/timer.pl $sec`"
+echo "Execution time for whole script = `utils/timer.pl $sec`"
 echo ""
 

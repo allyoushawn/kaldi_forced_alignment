@@ -30,7 +30,7 @@ gmm-latgen-faster --beam=$dev_beam --lattice-beam=$dev_lat_beam \
   $model $HCLG "ark:$dev_feat" \
   ark,t:$dir/dev.lat 2> $dir/latgen.dev.log || exit 1
 timer=$[$SECONDS-$timer]
-echo "Execution time for generating lattices = `utility/timer.pl $timer`"
+echo "Execution time for generating lattices = `utils/timer.pl $timer`"
 
 timer=$SECONDS
 #min_error=100.0
@@ -45,11 +45,11 @@ for x in `seq 1 10`; do
     2> $dir/rescore.$acwt.log || exit 1
   echo "Generating char level transcription -> $dir/dev.$acwt.rec"
   cat $dir/dev.$acwt.tra \
-    | utility/int2sym.pl --ignore-first-field decode/words.txt \
-    | python utility/word2char.py \
+    | utils/int2sym.pl --ignore-first-field decode/words.txt \
+    | python utils/word2char.py \
     > $dir/dev.$acwt.rec
   cat $dir/dev.$acwt.rec \
-    | python utility/compute-acc.py decode/dev.text \
+    | python utils/compute-acc.py decode/dev.text \
     > $dir/dev.$acwt.acc
   acc=`grep "overall accuracy" $dir/dev.$acwt.acc | awk '{ print $4 }'`
   if [ "1" == `awk "BEGIN{print($acc>$max_acc)}"` ]; then
@@ -61,7 +61,7 @@ for x in `seq 1 10`; do
   echo "        accuracy -> [ $acc ] %"
 done
 timer=$[$SECONDS-$timer]
-echo "Execution time for rescoring lattices = `utility/timer.pl $timer`"
+echo "Execution time for rescoring lattices = `utils/timer.pl $timer`"
 echo "Optimal acoustic weight = $opt_acwt"
 
 timer=$SECONDS
@@ -70,17 +70,17 @@ gmm-decode-faster --beam=$test_beam --acoustic-scale=$opt_acwt \
   --word-symbol-table=decode/words.txt $model \
   $HCLG "ark:$test_feat" ark,t:$dir/test.tra ark,t:$dir/test.ali 2> $dir/decode.test.log || exit 1
 timer=$[$SECONDS-$timer]
-echo "Execution time for recognizing test set = `utility/timer.pl $timer`"
+echo "Execution time for recognizing test set = `utils/timer.pl $timer`"
 
 echo "Generating char level transcription -> $dir/test.rec"
 
 echo "entering the section"
 cat $dir/test.tra \
-  | utility/int2sym.pl --ignore-first-field decode/words.txt \
-  | python utility/word2char.py \
+  | utils/int2sym.pl --ignore-first-field decode/words.txt \
+  | python utils/word2char.py \
   > $dir/test.rec
 cat $dir/test.rec \
-  | python utility/compute-acc.py decode/test.text \
+  | python utils/compute-acc.py decode/test.text \
   > $dir/test.acc
 acc=`grep "overall accuracy" $dir/test.acc | awk '{ print $4 }'`
 echo "    result -> $dir/test.rec"
@@ -89,6 +89,6 @@ echo "    accuracy -> [ $acc ] %"
 sec=$SECONDS
 
 echo ""
-echo "Execution time for whole script = `utility/timer.pl $sec`"
+echo "Execution time for whole script = `utils/timer.pl $sec`"
 echo ""
 

@@ -118,7 +118,7 @@ while [ $iter -le $numiters ];do
      numgauss=$[$numgauss+$incgauss];
   fi
   timer=$[$SECONDS-$timer]
-  echo "    execution time for iteration $x = `utility/timer.pl $timer`"
+  echo "    execution time for iteration $x = `utils/timer.pl $timer`"
   iter=$[$iter+1];
 done
 
@@ -148,6 +148,6 @@ done
 sec=$SECONDS
 
 echo ""
-echo "Execution time for whole script = `utility/timer.pl $sec`"
+echo "Execution time for whole script = `utils/timer.pl $sec`"
 echo ""
 

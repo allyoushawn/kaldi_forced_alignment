@@ -98,7 +98,7 @@ if [ $rbm_depth -ge 1 ]; then
   rbm_dir=exp/rbm
   mkdir -p $rbm_dir
   if [ ! -s ${rbm_dir}/${rbm_depth}.dbn ]; then
-    utility/pretrain_dbn.sh --nn_depth $rbm_depth --hid-dim $rbm_hidd_num --rbm-iter 10   --feature-transform $feature_transform $rbm_dir
+    utils/pretrain_dbn.sh --nn_depth $rbm_depth --hid-dim $rbm_hidd_num --rbm-iter 10   --feature-transform $feature_transform $rbm_dir
   else
     echo "${rbm_depth}.dbn exists, skips..."
   fi
@@ -128,7 +128,7 @@ case "$nnet_type" in
       num_feat=$(feat-to-dim "$splice_feat_train nnet-forward \"$get_dim_from\" ark:- ark:- |" -)
     fi
 
-    utility/make_nnet_proto.py $proto_opts \
+    utils/make_nnet_proto.py $proto_opts \
         ${bn_dim:+ --bottleneck-dim=$bn_dim} \
         $num_feat $num_target $depth $num_hidden >$nnet_proto || exit 1 
     train_tool='nnet-train-frmshuff'
@@ -140,7 +140,7 @@ case "$nnet_type" in
       num_feat=$(feat-to-dim "$splice_feat_train nnet-forward \"$get_dim_from\" ark:- ark:- |" -)
     fi
 
-    utility/make_lstm_proto.py $proto_opts \
+    utils/make_lstm_proto.py $proto_opts \
        $num_feat $num_target --num-cells=$lstm_cell_num --num-layers=$lstm_depth --num-recurrent=$lstm_recurrent_num >$nnet_proto || exit 1
     train_tool='nnet-train-lstm-streams'
     train_opts="--minibatch-size=$minibatch_size --randomizer-size=$randomizer_size --randomizer-seed=$randomizer_seed"
@@ -228,7 +228,7 @@ while [ $iter -le $max_iters ]; do
   
   timer=$[$SECONDS-$timer];
   echo ""
-  echo "    excution  time for epoch $x = `utility/timer.pl $timer`"
+  echo "    excution  time for epoch $x = `utils/timer.pl $timer`"
 
   if [ $iter -le $keep_lt_iters ]; then
     iter=$[$iter+1];
@@ -279,5 +279,5 @@ else
 fi
 
 echo ""
-echo "Execution time for whole script = `utility/timer.pl $SECONDS`"
+echo "Execution time for whole script = `utils/timer.pl $SECONDS`"
 echo ""

@@ -22,8 +22,6 @@ scale_opts="--transition-scale=1.0 --acoustic-scale=0.1 --self-loop-scale=0.1"
 mkdir -p $dir
 mkdir -p $dir/log
 
-#utility/sym2int.pl train/phones.txt train/phonemap.txt > $dir/phonesets.int
-#shared_phones_opt="--shared-phones=$dir/phonesets.int"
 
 [ ! -f $lang/phones/sets.int ] && exit 1;
 shared_phones_opt="--shared-phones=$lang/phones/sets.int"
@@ -139,7 +137,7 @@ while [ $iter -le $numiters ] ; do
   fi
 
   timer=$[$SECONDS-$timer];
-  echo "  excution  time for iteration $x = `utility/timer.pl $timer`"
+  echo "  excution  time for iteration $x = `utils/timer.pl $timer`"
 
   iter=$[$iter+1];
 done
@@ -174,6 +172,6 @@ done
 sec=$SECONDS
 
 echo ""
-echo "Execution time for whole script = `utility/timer.pl $sec`"
+echo "Execution time for whole script = `utils/timer.pl $sec`"
 echo ""
 

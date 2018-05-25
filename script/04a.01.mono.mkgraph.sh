@@ -26,7 +26,6 @@ fsttablecompose decode/L.fst decode/G.fst \
   | fstminimizeencoded \
   > $dir/LG.fst
 
-exit 0
 echo "Composing C & LG to CLG -> $dir/CLG.fst"
 fstcomposecontext --context-size=$context_size --central-position=$central_position \
  --read-disambig-syms=$disambig_phones \
@@ -50,6 +49,6 @@ fsttablecompose $dir/Ha.fst $dir/CLG.fst \
 sec=$SECONDS
 
 echo ""
-echo "Execution time for whole script = `utility/timer.pl $sec`"
+echo "Execution time for whole script = `utils/timer.pl $sec`"
 echo ""
 

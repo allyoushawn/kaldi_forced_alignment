@@ -12,6 +12,7 @@ model=exp/mono/final.mdl
 HCLG=graph/mono/HCLG.fst
 dev_label=decode/dev.text
 test_label=decode/test.text
+parallel="-parallel --num-threads=$cpu_num"
 
 dev_feat=$dev_feat_setup
 test_feat=$test_feat_setup
@@ -25,12 +26,12 @@ mkdir -p $dir
 
 timer=$SECONDS
 echo "Generating lattices for dev set"
-gmm-latgen-faster --beam=$dev_beam --lattice-beam=$dev_lat_beam \
+gmm-latgen-faster$parallel --beam=$dev_beam --lattice-beam=$dev_lat_beam \
   --acoustic-scale=$dev_acwt --word-symbol-table=decode/words.txt \
   $model $HCLG "ark:$dev_feat" \
   ark,t:$dir/dev.lat 2> $dir/latgen.dev.log
 timer=$[$SECONDS-$timer]
-echo "Execution time for generating lattices = `utility/timer.pl $timer`"
+echo "Execution time for generating lattices = `utils/timer.pl $timer`"
 
 timer=$SECONDS
 max_acc=0.0
@@ -44,11 +45,11 @@ for x in `seq 1 10`; do
     2> $dir/rescore.$acwt.log
   echo "Generating char level transcription -> $dir/dev.$acwt.rec"
   cat $dir/dev.$acwt.tra \
-    | utility/int2sym.pl --ignore-first-field decode/words.txt \
-    | python utility/word2char.py \
+    | utils/int2sym.pl --ignore-first-field decode/words.txt \
+    | python utils/word2char.py \
     > $dir/dev.$acwt.rec
   cat $dir/dev.$acwt.rec \
-    | python utility/compute-acc.py decode/dev.text \
+    | python utils/compute-acc.py decode/dev.text \
     > $dir/dev.$acwt.acc
   acc=`grep "overall accuracy" $dir/dev.$acwt.acc | awk '{ print $4 }'`
   if [ "1" == `awk "BEGIN{print($acc>$max_acc)}"` ]; then
@@ -60,7 +61,7 @@ for x in `seq 1 10`; do
   echo "        accuracy -> [ $acc ] %"
 done
 timer=$[$SECONDS-$timer]
-echo "Execution time for rescoring lattices = `utility/timer.pl $timer`"
+echo "Execution time for rescoring lattices = `utils/timer.pl $timer`"
 echo "Optimal acoustic weight = $opt_acwt"
 
 timer=$SECONDS
@@ -69,15 +70,15 @@ gmm-decode-faster --beam=$test_beam --acoustic-scale=$opt_acwt \
   --word-symbol-table=decode/words.txt $model \
   $HCLG "ark:$test_feat" ark,t:$dir/test.tra ark,t:$dir/test.ali 2> $dir/decode.test.log
 timer=$[$SECONDS-$timer]
-echo "Execution time for recognizing test set = `utility/timer.pl $timer`"
+echo "Execution time for recognizing test set = `utils/timer.pl $timer`"
 
 echo "Generating char level transcription -> $dir/test.rec"
 cat $dir/test.tra \
-  | utility/int2sym.pl --ignore-first-field decode/words.txt \
-  | python utility/word2char.py \
+  | utils/int2sym.pl --ignore-first-field decode/words.txt \
+  | python utils/word2char.py \
   > $dir/test.rec
 cat $dir/test.rec \
-  | python utility/compute-acc.py decode/test.text \
+  | python utils/compute-acc.py decode/test.text \
   > $dir/test.acc
 acc=`grep "overall accuracy" $dir/test.acc | awk '{ print $4 }'`
 echo "    result -> $dir/test.rec"
@@ -86,6 +87,6 @@ echo "    accuracy -> [ $acc ] %"
 sec=$SECONDS
 
 echo ""
-echo "Execution time for whole script = `utility/timer.pl $sec`"
+echo "Execution time for whole script = `utils/timer.pl $sec`"
 echo ""
 

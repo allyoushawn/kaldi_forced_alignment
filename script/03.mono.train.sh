@@ -26,7 +26,7 @@ mkdir -p $dir/log
 [ ! -f $lang/phones/sets.int ] && exit 1;
 shared_phones_opt="--shared-phones=$lang/phones/sets.int"
 
-dim=`feat-to-dim --print-args=false "ark:$feat" - 2> tmp.log`
+dim=`feat-to-dim --print-args=false "ark:$feat" - 2> /dev/null`
 
 echo "Initializing monophone system with dim = [ $dim ]"
 if [ ! -f $dir/00.mdl ] || [ ! -f $dir/tree ]; then
